@@ -20,6 +20,7 @@ const useFetch =(cb,options={}) => {
           const resp =   await cb(supabaseAccessToken, options, ...args);            
         setData(resp);
         } catch (error) {
+          console.log('useFetch hook error:', error);
            setError(error); 
         } finally{
             setLoading(false);

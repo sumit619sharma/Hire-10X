@@ -24,12 +24,12 @@ const JobListing = () => {
  const [location, setLocation] = useState('');
  const [company_id, setCompany_id] = useState('');
  const [search_query, setSearch_query] = useState('');
- const {session} = useSession();
+ 
  const {fn, data: jobs, loading: loadingJobs, error} = 
         useFetch(getJobs,{ location, company_id,searchQuery: search_query});
   const {fn: fnCompanies, data: companies} = useFetch(getCompanies);
-  const { isLoaded} = useUser();
- 
+  const { isLoaded, user} = useUser();
+ console.log('isloaded:', isLoaded, "  ", user)
  useEffect(() => {
   if(isLoaded){
     fnCompanies();
@@ -39,11 +39,11 @@ const JobListing = () => {
 
  console.log('jobs: ', jobs);
  useEffect(() => {
-    if(session){
+    if(isLoaded){
       
       fn();
     }
-    },[session,location,company_id,search_query])
+    },[isLoaded,location,company_id,search_query])
 
     const handleSearch = (e)=> {
       e.preventDefault();
