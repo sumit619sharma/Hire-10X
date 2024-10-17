@@ -22,7 +22,7 @@ const {fn:fnSavedJob, data: savedJobData, loading: loadingSavedJob} = useFetch(s
  }
   },[savedJobData])
   return (
-    <Card>
+    <Card className="flex flex-col">
       <CardHeader>
         <CardTitle>
           {job.title}
