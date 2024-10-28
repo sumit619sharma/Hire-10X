@@ -1,7 +1,11 @@
 import { getSingleJob, updateHiringStatus } from '@/api/apiJobs';
+import ApplicationCard from '@/components/ApplicationCard';
+import ApplyJobDrawer from '@/components/applyJob-drawer';
+import { Select, SelectContent, SelectItem, SelectValue, SelectTrigger } from '@/components/ui/select';
+
 import useFetch from '@/hooks/use-fetch';
 import { useUser } from '@clerk/clerk-react';
-import { SelectTrigger } from '@radix-ui/react-select';
+
 import MDEditor from '@uiw/react-md-editor';
 import { Briefcase, DoorClosed, DoorOpen, MapPinIcon } from 'lucide-react';
 import React, { useEffect } from 'react'
@@ -14,7 +18,8 @@ const Job = () => {
   const {fn: updateStatus, loading: loadingStatus, data: updateData} = useFetch(updateHiringStatus, {job_id: id})
 
   const {user, isLoaded}= useUser()
-
+console.log('user id', user?.id);
+console.log('recruiter id', job?.recruiter_id);
   useEffect(() => {
     if(isLoaded){
       getJob();
@@ -63,10 +68,10 @@ const Job = () => {
      </div>
       
       {/* hiring status */}
-      {user.id===job?.recruiter_id && (
+      {user?.id===job?.recruiter_id && (
         <Select  onValueChange={(value)=> handleStatusChange(value)}>
         <SelectTrigger className={`w-full ${job?.isOpen? "bg-green-950" : "bg-red-950"}`}>
-          <SelectValue placeholder={job?.isOpen ? "Hiring status (oepn)" : "Hiring status (close)" } />
+          <SelectValue placeholder={job?.isOpen ? "Hiring status (open)" : "Hiring status (close)" } />
         </SelectTrigger>
         <SelectContent>
              <SelectItem  value={"open"}>
@@ -89,6 +94,25 @@ const Job = () => {
       source={job?.requirements}
       className="bg-transparent sm: text-lg"
       />
+
+      {/* render application */}
+      {job?.recruiter_id !== user.id && (
+        <ApplyJobDrawer 
+          job={job}
+          user={user}
+          fetchJob={getJob}
+          applied= {job?.applicants?.find((ap)=> ap.candidate_id === user.id)}
+          />
+      )}
+      {(job?.applicants.length>0 && user?.id=== job?.recruiter_id) && (
+          <div className='flex flex-col gap-2'>
+            <h2 className='text-2xl sm:text-3xl font-bold'>Applications</h2>
+            {job?.applicants.map((apl) => {
+              return <ApplicationCard key={apl.id} application={apl} />
+            })}
+          </div>
+      )}
+
     </div>
   )
 }
