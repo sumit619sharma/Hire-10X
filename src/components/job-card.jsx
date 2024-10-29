@@ -4,16 +4,22 @@ import { Heart, MapPinIcon, Trash2Icon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from './ui/button'
 import useFetch from '@/hooks/use-fetch'
-import { saveJob } from '@/api/apiJobs'
+import { deleteJob, saveJob } from '@/api/apiJobs'
 import { useUser } from '@clerk/clerk-react'
-const JobCard = ({job, isMyJob=false, savedInit=false, onJobSaved=()=>{}}) => {
+import { BarLoader } from 'react-spinners'
+const JobCard = ({job, isMyJob=false, savedInit=false, onJobAction=()=>{}}) => {
 const {user} = useUser();
 const [saved,setSaved] = useState(savedInit);  
 const {fn:fnSavedJob, data: savedJobData, loading: loadingSavedJob} = useFetch(saveJob, {isSavedJob: saved});
+const {fn:fnDeleteJob, data: deleteJobData, loading: loadingDeleteJob} = useFetch(deleteJob, {job_id: job?.id});
   
   const handleSavedJob = async () => {
     await fnSavedJob({user_id: user.id, job_id: job.id})
-    onJobSaved();
+    onJobAction();
+  }
+  const handleDeleteJob =async ()=> {
+    await fnDeleteJob();
+    onJobAction();
   }
 
   useEffect(()=>{
@@ -23,21 +29,25 @@ const {fn:fnSavedJob, data: savedJobData, loading: loadingSavedJob} = useFetch(s
   },[savedJobData])
   return (
     <Card className="flex flex-col">
-      <CardHeader>
-        <CardTitle>
+      {loadingDeleteJob && 
+        <BarLoader className='mb-4' width={"100%"} color='#36d7b7' />
+      }
+      <CardHeader className="flex">
+        <CardTitle className="flex justify-between font-bold">
           {job.title}
           {isMyJob && (
             <Trash2Icon
              fill='red'
              size={18}
              className='text-red-300 cursor-pointer'
+             onClick={handleDeleteJob}
             />
           )}
         </CardTitle>
       </CardHeader>
       <CardContent className='flex flex-col gap-4 flex-1'>
     <div className='flex justify-between'>
-        {job.company && <img src={job.company.logo_url} className='h-6' />}
+        {job?.company && <img src={job?.company?.logo_url} className='h-6' />}
       <div>
         <MapPinIcon size={15}/> {job.location}
       </div>

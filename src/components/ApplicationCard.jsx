@@ -29,7 +29,7 @@ const ApplicationCard = ({isCandidate=false, application}) => {
      <CardHeader>
       <CardTitle className="flex justify-between font-bold">
         {isCandidate 
-         ? `${application?.job?.title} at ${application?.job?.company}`
+         ? `${application?.job?.title} at ${application?.job?.company?.name}`
          :  application?.name     
          }
          <Download
